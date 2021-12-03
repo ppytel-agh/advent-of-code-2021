@@ -1,3 +1,10 @@
+def calculateRatio(valuesArray, bitIndex):
+    sum = 0
+    for binaryValue in valuesArray:
+        sum += int(binaryValue[bitIndex])
+    ratio = float(sum) / float(len(valuesArray))
+    return ratio
+
 def remainValuesWithBit(valuesArray, bitIndex, bitValue):
     newValues = []
     for value in valuesArray:
@@ -22,23 +29,14 @@ def calculateLifeSupportRating(inputFilename, verbose = False):
         if(verbose):
             print("bitIndex")
             print(bitIndex)
-        sum = 0        
-        for binaryValue in inputLines:
-            sum += int(binaryValue[bitIndex])
-        ratio = float(sum) / float(inputSize)
-        if(verbose):
-            print("ratio")
-            print(ratio)
-        if ratio >= 0.5:
-            if(len(oxygenGeneratorNumbers) > 1):
-                oxygenGeneratorNumbers = remainValuesWithBit(oxygenGeneratorNumbers, bitIndex, '1')
-            if(len(co2ScrubberNumbers) > 1):
-                co2ScrubberNumbers = remainValuesWithBit(co2ScrubberNumbers, bitIndex, '0')
-        else:
-            if(len(oxygenGeneratorNumbers) > 1):
-                oxygenGeneratorNumbers = remainValuesWithBit(oxygenGeneratorNumbers, bitIndex, '0')
-            if(len(co2ScrubberNumbers) > 1):                
-                co2ScrubberNumbers = remainValuesWithBit(co2ScrubberNumbers, bitIndex, '1')
+        if(len(oxygenGeneratorNumbers) > 1):
+            oxygenRatio = calculateRatio(oxygenGeneratorNumbers, bitIndex)
+            bitToRemain = '1' if (oxygenRatio >= 0.5) else '0'
+            oxygenGeneratorNumbers = remainValuesWithBit(oxygenGeneratorNumbers, bitIndex, bitToRemain)
+        if(len(co2ScrubberNumbers) > 1):
+            co2Ratio = calculateRatio(co2ScrubberNumbers, bitIndex)
+            bitToRemain = '0' if (co2Ratio >= 0.5) else '1'
+            co2ScrubberNumbers = remainValuesWithBit(co2ScrubberNumbers, bitIndex, bitToRemain)        
     if(len(oxygenGeneratorNumbers) > 1):
         print("not enough filtering of oxygen numbers")
     if(len(co2ScrubberNumbers) > 1):  
