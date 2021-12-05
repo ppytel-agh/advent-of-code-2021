@@ -59,32 +59,32 @@ class VentLine
         return $this->start->getX() == $this->end->getX();
     }
 
+    public function isDiagonal(): bool
+    {
+        $deltaX = abs($this->end->getX() - $this->start->getX());
+        $deltaY = abs($this->end->getY() - $this->start->getY());
+        return $deltaX == $deltaY;
+    }
+
     public function interpolateCoords(): array
     {
-        if ($this->isVertical())
-        {
+        if ($this->isVertical()) {
             $delta = $this->end->getY() - $this->start->getY();
             $steps = abs($delta);
-            if($steps > 0)
-            {
+            if ($steps > 0) {
                 $step = intval($delta / $steps);
                 $coords = [];
-                for($i = 0; $i <= $steps; $i++)
-                {
+                for ($i = 0; $i <= $steps; $i++) {
                     $coords[] = new Coord2D($this->start->getX(), $this->start->getY() + ($i * $step));
                 }
                 return $coords;
-            }
-            else
-            {
+            } else {
                 return [$this->start];
             }
-        }
-        else if($this->isHorizontal())
-        {
+        } else if ($this->isHorizontal()) {
             $delta = $this->end->getX() - $this->start->getX();
             $steps = abs($delta);
-            if($steps > 0) {
+            if ($steps > 0) {
                 $step = intval($delta / $steps);
                 $coords = [];
                 for ($i = 0; $i <= $steps; $i++) {
@@ -94,9 +94,19 @@ class VentLine
             } else {
                 return [$this->start];
             }
-        }
-        else
-        {
+        } else if ($this->isDiagonal()) {
+            $deltaX = $this->end->getX() - $this->start->getX();
+            $stepsX = abs($deltaX);
+            $stepX = intval($deltaX/$stepsX);
+            $deltaY = $this->end->getY() - $this->start->getY();
+            $stepsY = abs($deltaY);
+            $stepY = intval($deltaY/$stepsY);
+            $coords = [];
+            for ($i = 0; $i <= $stepsX; $i++) {
+                $coords[] = new Coord2D($this->start->getX() + ($i * $stepX), $this->start->getY() + ($i * $stepY));
+            }
+            return $coords;
+        } else {
             return [];
         }
     }
@@ -294,6 +304,18 @@ class VentsFilter
             }
         }
         return new VentLinesContainer($horizontalAndVerticalVents);
+    }
+
+    public static function getHorizontalVerticalAndDiagonalVents(VentLinesContainer $ventsContainer) {
+        $horizontalVerticalAndDiagonalVents = [];
+        foreach($ventsContainer->getVentLines() as $ventLine)
+        {
+            if($ventLine->isHorizontal() || $ventLine->isVertical() || $ventLine->isDiagonal())
+            {
+                $horizontalVerticalAndDiagonalVents[] = $ventLine;
+            }
+        }
+        return new VentLinesContainer($horizontalVerticalAndDiagonalVents);
     }
 }
 
